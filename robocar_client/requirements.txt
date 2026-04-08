@@ -1,0 +1,8 @@
+mlagents==0.30.0
+protobuf>=3.19.0,<3.21
+pygame>=2.5.2
+# Laisser pip choisir les versions compatibles (wheels dispo en 3.9 arm64)
+torch
+numpy
+pandas
+pynput>=1.7.6
