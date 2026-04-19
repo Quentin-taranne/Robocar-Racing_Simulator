@@ -34,11 +34,25 @@ Les traces sont écrites dans `data/drive_YYYYMMDD-HHMMSS.csv`.
 
 ## Entraîner un modèle supervisé
 ```bash
-python robocar_client/train_model.py data/drive_20260403-*.csv --epochs 20 --batch-size 256
+python robocar_client/train_model.py \
+  data/drive_20260403-*.csv \
+  --agent-id 0 \
+  --epochs 20 \
+  --batch-size 256 \
+  --hidden-size 128
 ```
-Le modèle est sauvegardé par défaut dans `models/steering_mlp.pt`.
+Le modèle est sauvegardé par défaut dans `models/steering_mlp.pt` et les métriques dans `models/steering_mlp.metrics.json`.
+
+Le script utilise par défaut une validation par fichier CSV, ce qui évite une validation trop optimiste due aux doublons temporels. Les métriques exportées incluent notamment `MAE`, `RMSE`, `accuracy` sur actions discrétisées et comparaison contre des baselines simples.
+
+## Faire l'EDA du dataset
+```bash
+python3 scripts/eda_dataset.py
+```
+Le rapport Markdown est généré dans `reports/data_eda.md` et le résumé brut dans `reports/data_eda.json`.
 
 ## Notes
 - Le fichier `agents.json` définit `fov` et `nbRay` pour les agents. Ajustez-le avant de lancer le client.
 - `--time-scale` permet d'accélérer le simulateur (ex: `--time-scale 2.0`).
 - Le client envoie la même commande aux agents actifs ; suffisant pour démarrer rapidement.
+- Le petit MLP suffit pour démarrer; avant d'augmenter sa taille, privilégier davantage de données propres et variées.

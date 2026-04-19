@@ -6,16 +6,24 @@
 EPOCHS=${EPOCHS:-300}
 BATCH=${BATCH:-256}
 LR=${LR:-1e-3}
+HIDDEN=${HIDDEN:-128}
 SEED=${SEED:-42}
 OUT=${OUT:-models/steering_mlp.pt}
+METRICS_OUT=${METRICS_OUT:-}
 ACTION_ORDER=${ACTION_ORDER:-throttle-steer}  # ordre des actions dans les CSV
 
 set -euo pipefail
 
-python robocar_client/train_model.py \
+cmd=(python robocar_client/train_model.py
   --epochs "$EPOCHS" \
   --batch-size "$BATCH" \
+  --hidden-size "$HIDDEN" \
   --lr "$LR" \
   --seed "$SEED" \
   --out "$OUT" \
-  "$@"
+)
+
+[[ -n "$METRICS_OUT" ]] && cmd+=(--metrics-out "$METRICS_OUT")
+cmd+=("$@")
+
+"${cmd[@]}"

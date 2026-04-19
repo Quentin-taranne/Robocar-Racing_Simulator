@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 from pathlib import Path
 from typing import Dict, Tuple
 
@@ -71,9 +72,28 @@ def parse_args() -> argparse.Namespace:
     )
     p.add_argument("--max-steps", type=int, default=0, help="0 = infini")
     p.add_argument(
-        "--hidden", type=int, default=HIDDEN_SIZE, help="Taille cachée du MLP (doit matcher le modèle entraîné)"
+        "--hidden",
+        type=int,
+        default=None,
+        help="Taille cachee du MLP. Si omise, on essaie de la lire depuis model.metrics.json.",
     )
     return p.parse_args()
+
+
+def resolve_hidden_size(model_path: Path, cli_hidden: int | None) -> int:
+    if cli_hidden is not None:
+        return cli_hidden
+
+    metrics_path = model_path.with_suffix(".metrics.json")
+    if metrics_path.exists():
+        try:
+            payload = json.loads(metrics_path.read_text(encoding="utf-8"))
+            hidden = int(payload["model"]["hidden_size"])
+            return hidden
+        except (KeyError, TypeError, ValueError, json.JSONDecodeError):
+            pass
+
+    return HIDDEN_SIZE
 
 
 def main() -> None:
@@ -112,12 +132,14 @@ def main() -> None:
             continue
         obs_shape = spec.observation_specs[0].shape
         flat_dim = int(np.prod(obs_shape))
-        model = MLP(input_dim=flat_dim, output_dim=spec.action_spec.continuous_size, hidden=args.hidden)
-        model.load_state_dict(torch.load(behavior_to_model[beh], map_location="cpu"))
+        model_path = behavior_to_model[beh]
+        hidden_size = resolve_hidden_size(model_path, args.hidden)
+        model = MLP(input_dim=flat_dim, output_dim=spec.action_spec.continuous_size, hidden=hidden_size)
+        model.load_state_dict(torch.load(model_path, map_location="cpu"))
         model.eval()
         controllers[beh] = (model, flat_dim)
         print(
-            f"[INFO] {beh} -> {behavior_to_model[beh]} | obs dim={flat_dim} | actions cont.: {spec.action_spec.continuous_size}"
+            f"[INFO] {beh} -> {model_path} | obs dim={flat_dim} | hidden={hidden_size} | actions cont.: {spec.action_spec.continuous_size}"
         )
 
     if not controllers:
