@@ -1,0 +1,47 @@
+name: robocar39
+channels:
+  - conda-forge
+dependencies:
+  - python=3.9.18
+  - pip=25.2
+  - setuptools=80.9.0
+  - wheel=0.45.1
+  - pip:
+      - absl-py==2.3.1
+      - attrs==26.1.0
+      - cattrs==1.5.0
+      - cloudpickle==3.1.2
+      - filelock==3.19.1
+      - grpcio==1.80.0
+      - gym==0.26.2
+      - gym-notices==0.1.0
+      - h5py==3.14.0
+      - importlib-metadata==8.7.1
+      - markdown==3.9
+      - markupsafe==3.0.3
+      - mlagents==0.30.0
+      - mlagents-envs==0.30.0
+      - numpy==1.21.2
+      - packaging==26.0
+      - pandas==2.0.3
+      - pettingzoo==1.15.0
+      - pillow==11.3.0
+      - protobuf==3.20.3
+      - pygame==2.6.1
+      - pynput==1.8.1
+      - pyobjc-core==11.1
+      - pyobjc-framework-applicationservices==11.1
+      - pyobjc-framework-cocoa==11.1
+      - pyobjc-framework-coretext==11.1
+      - pyobjc-framework-quartz==11.1
+      - python-dateutil==2.9.0.post0
+      - pytz==2026.1.post1
+      - pyyaml==6.0.3
+      - six==1.17.0
+      - tensorboard==2.20.0
+      - tensorboard-data-server==0.7.2
+      - torch==1.11.0
+      - typing-extensions==4.15.0
+      - tzdata==2026.1
+      - werkzeug==3.1.8
+      - zipp==3.23.0

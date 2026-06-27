@@ -1,16 +1,31 @@
 # Démarrage rapide Robocar (client Python)
 
 ## Prérequis
-- Python 3.10 (ML-Agents 0.30 n'est pas compatible avec Python ≥3.11)
+- Conda ou Miniforge pour recréer l'environnement `robocar39`
 - Le simulateur `RacingSimulator.app` présent dans ce dossier
 
 ## Installation rapide
+Environnement reproductible utilisé pour l'entraînement :
+
+```bash
+cd $(dirname "$0")/..
+conda env create -f environment.yml
+conda activate robocar39
+python --version
+```
+
+La version Python attendue est `3.9.18`.
+
+Alternative avec venv :
+
 ```bash
 cd $(dirname "$0")/..
 python3.10 -m venv .venv
 source .venv/bin/activate
 pip install -r robocar_client/requirements.txt
 ```
+
+ML-Agents 0.30 n'est pas compatible avec Python >=3.11.
 
 ## Lancer le simulateur
 Sur macOS :
@@ -26,6 +41,15 @@ python robocar_client/client.py \
   --agents-config robocar_client/agents.json \
   --base-port 5004
 ```
+
+Pour collecter Agent0 et Agent1 en même temps avec le même clavier :
+
+```bash
+ALL_BEHAVIORS=1 scripts/run_client.sh
+```
+
+Les CSV restent séparés par `agent_id` (`data/drive_0_*.csv`, `data/drive_1_*.csv`). Gardez un entraînement séparé par agent si les observations/capteurs ne sont pas identiques.
+
 Raccourcis clavier :
 - Flèches ou WASD pour gauche/droite/accélérer/freiner
 - Ctrl+C ou fermer la petite fenêtre pygame pour quitter

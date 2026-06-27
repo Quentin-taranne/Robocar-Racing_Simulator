@@ -25,16 +25,42 @@ The current repo is built around one simple principle:
 
 ## Prerequisites
 
-- Python `3.10`
+- Conda or Miniforge for the reproducible `robocar39` environment
 - `RacingSimulator.app` present at the repository root
 - macOS accessibility permissions if you use global keyboard input
 
 ## Installation
 
+### Reproduce the known working Conda environment
+
+This recreates the `robocar39` environment used for training on macOS.
+
+```bash
+conda env create -f environment.yml
+conda activate robocar39
+python --version
+```
+
+Expected Python version: `3.9.18`.
+
+### Alternative lightweight venv
+
 ```bash
 python3.10 -m venv .venv
 source .venv/bin/activate
 pip install -r robocar_client/requirements.txt
+```
+
+ML-Agents `0.30.0` is not compatible with Python `>=3.11`.
+
+### Smoke test training command
+
+```bash
+conda activate robocar39
+python robocar_client/train_model.py data/drive_0_*.csv \
+  --agent-id 0 \
+  --epochs 30 --batch-size 256 --lr 1e-4 \
+  --out models/test0.pt --seed 42
 ```
 
 ## Quick Workflow
@@ -91,6 +117,16 @@ INPUT_MODE=global IDLE_THROTTLE=0.0 scripts/run_client.sh
 ```bash
 BEHAVIOR_NAME='Agent0?team=0' scripts/run_client.sh
 ```
+
+### Collect Agent0 and Agent1 at the same time
+
+Use one keyboard input for every available behavior:
+
+```bash
+ALL_BEHAVIORS=1 scripts/run_client.sh
+```
+
+This writes separate files per `agent_id`, for example `data/drive_0_*.csv` and `data/drive_1_*.csv`. Keep training one model per agent unless both agents use the same observation layout.
 
 Collected trajectories are saved as CSV files in `data/`.
 
