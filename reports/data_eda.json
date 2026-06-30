@@ -1,38 +1,38 @@
 {
-  "file_count": 11,
-  "row_count": 127949,
-  "recording_duration_seconds": 2559.6074929237366,
+  "file_count": 58,
+  "row_count": 852778,
+  "recording_duration_seconds": 17307.00603914261,
   "obs_length_distribution": {
-    "50": 127949
+    "50": 852778
   },
   "action_length_distribution": {
-    "2": 127949
+    "2": 852778
   },
   "agent_row_distribution": {
-    "0": 86929,
-    "1": 41020
+    "0": 589909,
+    "1": 262869
   },
   "done_distribution": {
-    "0": 127949
+    "0": 852778
   },
   "episode_distribution": {
-    "0": 127949
+    "0": 852778
   },
   "reward_distribution": {
-    "0.0": 127949
+    "0.0": 852778
   },
-  "unique_observations": 57989,
-  "duplicate_rows": 69960,
-  "conflicting_observation_patterns": 1732,
-  "conflicting_rows": 32050,
+  "unique_observations": 441348,
+  "duplicate_rows": 411430,
+  "conflicting_observation_patterns": 33786,
+  "conflicting_rows": 332022,
   "temporal": {
-    "dt_mean": 0.020006624247086373,
-    "dt_median": 0.019520998001098633,
-    "dt_p90": 0.04185199737548828,
-    "action_run_mean": 20.079880728185813,
-    "action_run_median": 7.0,
-    "action_run_p90": 42.0,
-    "consecutive_identical_observations": 61176
+    "dt_mean": 0.020296235621473178,
+    "dt_median": 0.01894092559814453,
+    "dt_p90": 0.029098033905029297,
+    "action_run_mean": 6.472845681495594,
+    "action_run_median": 1.0,
+    "action_run_p90": 14.0,
+    "consecutive_identical_observations": 291044
   },
   "top_actions": [
     {
@@ -40,48 +40,76 @@
         1.0,
         0.0
       ],
-      "count": 96960
+      "count": 356257
+    },
+    {
+      "action": [
+        0.999969482421875,
+        0.0
+      ],
+      "count": 156582
     },
     {
       "action": [
         0.0,
         0.0
       ],
-      "count": 16818
+      "count": 96429
     },
     {
       "action": [
         1.0,
         -1.0
       ],
-      "count": 9618
+      "count": 43405
     },
     {
       "action": [
         1.0,
         1.0
       ],
-      "count": 2913
+      "count": 19536
     },
     {
       "action": [
         0.0,
         -1.0
       ],
-      "count": 1105
+      "count": 8204
+    },
+    {
+      "action": [
+        0.999969482421875,
+        -1.0
+      ],
+      "count": 5012
+    },
+    {
+      "action": [
+        0.30000001192092896,
+        0.0
+      ],
+      "count": 4118
     },
     {
       "action": [
         0.0,
         1.0
       ],
-      "count": 535
+      "count": 3711
+    },
+    {
+      "action": [
+        0.639190673828125,
+        0.0
+      ],
+      "count": 2867
     }
   ],
   "dataset_health": {
     "big": {
       "status": "OK pour prototype",
-      "evidence": "127 949 lignes sur 11 sessions, environ 42.7 min de roulage."
+      "evidence": "852 778 lignes sur 58 sessions, environ 288.5 min de roulage."
     },
     "clean": {
       "status": "Structure propre, signaux pauvres",
@@ -89,16 +117,14 @@
     },
     "diverse": {
       "status": "A renforcer",
-      "evidence": "45.3% d'observations uniques, steer=0 sur 88.9%, throttle=1 sur 85.6%."
+      "evidence": "51.8% d'observations uniques, steer=0 sur 81.2%, throttle=1 sur 49.2%."
     }
   },
   "quality_findings": [
     "Les agents n'utilisent pas le meme espace de capteurs: 10 valeurs utiles pour l'agent 0, 36 pour l'agent 1, avec padding a -1.",
-    "Le dataset est fortement redondant: 54.7% des lignes repliquent une observation deja vue.",
-    "La serie temporelle est tres autocorrellee: une grande part des pas consecutifs ont exactement la meme observation.",
-    "La direction est tres desequilibree: steer=0 represente 88.9% des labels.",
-    "L'acceleration est tres desequilibree: throttle=1 represente 85.6% des labels.",
-    "Le bruit de labels est notable: 25.0% des lignes appartiennent a des observations associees a plusieurs actions.",
+    "Le dataset est fortement redondant: 48.2% des lignes repliquent une observation deja vue.",
+    "La direction est tres desequilibree: steer=0 represente 81.2% des labels.",
+    "Le bruit de labels est notable: 38.9% des lignes appartiennent a des observations associees a plusieurs actions.",
     "`reward` est constant a 0 sur tout le corpus et n'apporte aucun signal de qualite ou d'apprentissage.",
     "`done` n'apparait jamais a 1; les fins d'episode ne sont pas observees dans les fichiers fournis.",
     "`episode` est constant a 0; le corpus ne contient pas de segmentation exploitable par episode.",

@@ -13,7 +13,7 @@ from mlagents_envs.side_channel.engine_configuration_channel import (
 )
 
 from data_logger import DataLogger
-from input_manager import GlobalKeyboardController, PygameKeyboardController
+from input_manager import AutoInputController, GamepadController, GlobalKeyboardController, PygameKeyboardController
 
 
 def parse_args() -> argparse.Namespace:
@@ -43,9 +43,66 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--input-mode",
-        choices=["pygame", "global"],
-        default="pygame",
-        help="pygame (fenêtre focus) ou global (pynput, nécessite autorisation accessibilité macOS).",
+        choices=["auto", "pygame", "global", "gamepad"],
+        default="auto",
+        help="auto (clavier pygame + manette), pygame, global (pynput) ou gamepad.",
+    )
+    parser.add_argument(
+        "--gamepad-index",
+        type=int,
+        default=0,
+        help="Index de la manette pygame a utiliser.",
+    )
+    parser.add_argument(
+        "--gamepad-steer-axis",
+        type=int,
+        default=0,
+        help="Axe de direction de la manette (defaut: stick gauche horizontal).",
+    )
+    parser.add_argument(
+        "--gamepad-throttle-axis",
+        type=int,
+        default=5,
+        help="Axe acceleration de la manette (defaut courant: gachette droite).",
+    )
+    parser.add_argument(
+        "--gamepad-brake-axis",
+        type=int,
+        default=4,
+        help="Axe frein de la manette (defaut courant: gachette gauche).",
+    )
+    parser.add_argument(
+        "--gamepad-throttle-button",
+        type=int,
+        default=0,
+        help="Bouton acceleration si l'axe configure n'existe pas.",
+    )
+    parser.add_argument(
+        "--gamepad-brake-button",
+        type=int,
+        default=1,
+        help="Bouton frein si l'axe configure n'existe pas.",
+    )
+    parser.add_argument(
+        "--gamepad-deadzone",
+        type=float,
+        default=0.12,
+        help="Zone morte appliquee a la direction.",
+    )
+    parser.add_argument(
+        "--gamepad-invert-steer",
+        action="store_true",
+        help="Inverser l'axe de direction de la manette.",
+    )
+    parser.add_argument(
+        "--gamepad-debug",
+        action="store_true",
+        help="Afficher les valeurs brutes axes/boutons de la manette.",
+    )
+    parser.add_argument(
+        "--input-debug",
+        action="store_true",
+        help="Afficher les commandes lues et les actions envoyees a Unity.",
     )
     parser.add_argument(
         "--agents-config",
@@ -58,6 +115,12 @@ def parse_args() -> argparse.Namespace:
         type=Path,
         default=Path("data"),
         help="Dossier où enregistrer les traces",
+    )
+    parser.add_argument(
+        "--trim-seconds",
+        type=float,
+        default=5.0,
+        help="Ne pas enregistrer les N dernières secondes de chaque session (souvent un crash/arrêt, pas une bonne decision).",
     )
     parser.add_argument(
         "--time-scale",
@@ -202,11 +265,41 @@ def main() -> None:
         timeout_wait=120,
     )
 
-    controller = (
-        PygameKeyboardController()
-        if args.input_mode == "pygame"
-        else GlobalKeyboardController()
-    )
+    if args.input_mode == "auto":
+        controller = AutoInputController(
+            index=args.gamepad_index,
+            steer_axis=args.gamepad_steer_axis,
+            throttle_axis=args.gamepad_throttle_axis,
+            brake_axis=args.gamepad_brake_axis,
+            throttle_button=args.gamepad_throttle_button,
+            brake_button=args.gamepad_brake_button,
+            deadzone=args.gamepad_deadzone,
+            invert_steer=args.gamepad_invert_steer,
+            debug=args.gamepad_debug,
+        )
+        print("[INPUT] auto: cliquer la petite fenetre Robocar Input; clavier et manette sont lus ensemble.")
+    elif args.input_mode == "pygame":
+        controller = PygameKeyboardController()
+        print("[INPUT] pygame: cliquer la petite fenetre 'Robocar Controller' avant d'appuyer sur WASD/fleches.")
+    elif args.input_mode == "gamepad":
+        controller = GamepadController(
+            index=args.gamepad_index,
+            steer_axis=args.gamepad_steer_axis,
+            throttle_axis=args.gamepad_throttle_axis,
+            brake_axis=args.gamepad_brake_axis,
+            throttle_button=args.gamepad_throttle_button,
+            brake_button=args.gamepad_brake_button,
+            deadzone=args.gamepad_deadzone,
+            invert_steer=args.gamepad_invert_steer,
+            debug=args.gamepad_debug,
+        )
+        print("[INPUT] gamepad: utiliser GAMEPAD_DEBUG=1 si les valeurs restent a zero.")
+    else:
+        controller = GlobalKeyboardController()
+        print(
+            "[INPUT] global: le terminal doit etre autorise dans "
+            "macOS System Settings > Privacy & Security > Accessibility."
+        )
     env.reset()
 
     available = list(env.behavior_specs.keys())
@@ -247,6 +340,11 @@ def main() -> None:
 
                 # Une commande clavier pour tous les agents à ce step
                 steer, throttle, brake = controller.poll()
+                if args.input_debug and step_count % 10 == 0:
+                    print(
+                        f"input steer={steer:+.2f} throttle={throttle:.2f} brake={brake:.2f} "
+                        f"active={active_count}"
+                    )
 
                 action_vectors: dict[str, np.ndarray] = {}
                 for behavior_name, (decision_steps, _) in behavior_steps.items():
@@ -260,6 +358,8 @@ def main() -> None:
                         order=args.action_order,
                     )
                     action_vectors[behavior_name] = action_vec
+                    if args.input_debug and step_count % 10 == 0:
+                        print(f"action {behavior_name}: {action_vec.tolist()} agents={len(decision_steps)}")
 
                     n_agents = len(decision_steps)
                     if n_agents > 0:

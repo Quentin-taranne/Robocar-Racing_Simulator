@@ -94,7 +94,7 @@ def build_dataset_health(analysis: "Analysis") -> dict[str, dict[str, str]]:
     full_throttle_ratio = analysis.overall_throttle.get(1.0, 0) / total_rows if total_rows else 0.0
     duration = total_recording_duration(analysis)
 
-    size_status = "OK pour prototype" if total_rows >= 100_000 and len(analysis.files) >= 10 else "A renforcer"
+    size_status = "OK" if total_rows >= 100_000 and len(analysis.files) >= 10 else "A renforcer"
     clean_status = "Structurellement propre"
     diversity_status = "A renforcer"
 
